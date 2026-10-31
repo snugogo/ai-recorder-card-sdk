@@ -7,7 +7,7 @@ and deletes them from the card, so you can build your own AI note-taker app with
 **No license fee, no royalties, no per-device fee.**
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
-- 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, delete. Plain Java, no third-party libraries, builds an APK
+- 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, delete, import from USB. Plain Java, no third-party libraries, builds an APK
 - ❓ [FAQ](docs/faq.md)
 - 🛒 Developer page and samples: https://aihwstack.com/en/products/recorder/developer/
 
@@ -29,7 +29,9 @@ and deletes them from the card, so you can build your own AI note-taker app with
 2. Switch the recorder on. Tap **Scan and connect** → battery, firmware, storage and device ID appear.
 3. Tap **List recordings**. Each recording has **Download**, **Play**, **Transcribe** and **Delete**.
 4. **Download** resumes from the last byte if the link drops (reconnect and tap it again).
-5. **Transcribe** asks once for base URL, API key and model of any OpenAI-compatible speech-to-text service. The key is stored only on the phone; long recordings are sent in 10-minute pieces.
+5. **Import audio file (USB)**: connect the card to the phone with a USB data cable; it appears as a USB drive (USB 2.0).
+   Pick a recording in the system file picker and it is transcribed. Some cables only charge and carry no data.
+6. **Transcribe** asks once for base URL, API key and model of any OpenAI-compatible speech-to-text service. The key is stored only on the phone; long recordings are sent in 10-minute pieces.
 
 Source: `Protocol.java` (frames, CRC, list parsing), `OggOpus.java` (wraps the card's bare Opus packets into Ogg; also fixes playback on Android 9),
 `Transcriber.java` (speech-to-text), `MainActivity.java` (Bluetooth and UI).
