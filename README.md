@@ -1,0 +1,66 @@
+# WB-RC100 AI voice recorder card — open BLE protocol and Android sample
+
+WB-RC100 is a card-sized AI voice recorder (86 × 54 × 3.2 mm) with a documented Bluetooth LE protocol.
+This repository contains the free protocol document and a plain-Java Android sample app that connects to the card,
+downloads recordings (with resume), plays them, transcribes them with any OpenAI-compatible speech-to-text API
+and deletes them from the card, so you can build your own AI note-taker app without our cloud.
+**No license fee, no royalties, no per-device fee.**
+
+- 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
+- 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, delete. Plain Java, no third-party libraries, builds an APK
+- ❓ [FAQ](docs/faq.md)
+- 🛒 Developer page and samples: https://aihwstack.com/en/products/recorder/developer/
+
+## Specs
+
+| | |
+|---|---|
+| Size | 86 × 54 × 3.2 mm (credit-card size) |
+| Bluetooth | BLE GATT, service `0xAE20`; write `0xAE21`; notify `0xAE22` / `0xAE23`; no pairing or authorization |
+| Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
+| Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
+| Storage | 32 GB: about 4,300 hours of Opus |
+| Platforms | Same protocol on Android and iOS |
+| Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
+
+## Quick start (Android)
+
+1. Open `android-sample/` in Android Studio (AGP 8.2, compileSdk 34, minSdk 23) and run it on a phone.
+2. Switch the recorder on. Tap **Scan and connect** → battery, firmware, storage and device ID appear.
+3. Tap **List recordings**. Each recording has **Download**, **Play**, **Transcribe** and **Delete**.
+4. **Download** resumes from the last byte if the link drops (reconnect and tap it again).
+5. **Transcribe** asks once for base URL, API key and model of any OpenAI-compatible speech-to-text service. The key is stored only on the phone; long recordings are sent in 10-minute pieces.
+
+Source: `Protocol.java` (frames, CRC, list parsing), `OggOpus.java` (wraps the card's bare Opus packets into Ogg; also fixes playback on Android 9),
+`Transcriber.java` (speech-to-text), `MainActivity.java` (Bluetooth and UI).
+
+On Android 6–11, allow Location and switch Location on, otherwise Bluetooth scanning finds nothing.
+
+## What is free, and what comes with a sample or volume order
+
+You can build a working app from this repository alone. The paid tiers save you time; they do not unlock the device.
+
+| | Free (this repo) | Sample order | Volume order (1,000+) | Your brand (500+) |
+|---|---|---|---|---|
+| Protocol | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, resume, segment download, mic gain | — |
+| Code | Android sample app: download with resume, play, transcribe, delete | Full reference app source: finished UI, sharing, background download, project ready to rebrand + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our finished app under your brand |
+| License fee / royalties | None | None | None | 10 % revenue share, no license fee |
+
+Prices and current terms: https://aihwstack.com/en/products/recorder/developer/
+
+## How this compares with closed SDKs
+
+Some recorder vendors ship only a compiled SDK (`.aar` / `.framework`), require a partner account and bind each device to their app,
+and charge per transcription minute or per connected device. Here you get the byte-level protocol and readable source,
+recordings never pass through our servers, and there is no per-device fee.
+
+## License and use with other hardware
+
+- **Code** (`android-sample/`): [MIT](LICENSE). You may use, change and sell it, also with hardware you did not buy from us.
+  The one condition: keep the copyright and license notice in your copy of the code.
+- **Documentation** (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it freely with attribution:
+  "AI HW Stack, https://aihwstack.com".
+- **Names and logos**: "WB-RC100" and "AI HW Stack" are not licensed by this repository. Do not use them to name your product
+  or to suggest that we made or endorse it.
+- **No warranty, tested hardware only**: the protocol and sample are tested on cards we ship (firmware V1.0.0).
+  Cards from other sources may run different firmware; we cannot support them.
