@@ -14,6 +14,15 @@ The recording is a 58-second phone call the card recorded in call mode (116,320 
 | Share | The share sheet offers the `.ogg` file; the transcript arrives as text in the receiving app (here a new SMS, which was then discarded; SMS itself does not accept `.ogg` attachments) | [android-5-share](tested/android-5-share.webp), [android-6-share-text](tested/android-6-share-text.webp) |
 | Delete from the card | Confirmation, "Deleted.", list shows 0 recordings | [android-7-delete-confirm](tested/android-7-delete-confirm.webp), [android-8-deleted](tested/android-8-deleted.webp) |
 
+## Reference app, sample edition 1.0.5 (Xiaomi Mi 6, Android 9)
+
+This is the app that comes with a sample order, not the free sample in this repository. Tested on 2 November 2026 with recordings of one hour each.
+
+| Step | Result | Screenshot |
+|---|---|---|
+| Download a 1-hour recording | 6.9 MB at a steady 30.4 KB/s (30.5 KB/s measured separately on the saved file), about 4 minutes. The saved Ogg file is complete: 3,603 pages, end-of-stream set, 60 min 01 s, the same length as on the card | [sample-1-download-speed](tested/sample-1-download-speed.webp) |
+| Long recordings | The card splits a long recording into 1-hour files (1:00:01 each) | [sample-2-hour-segments](tested/sample-2-hour-segments.webp) |
+
 ## Web demo (Chrome on Windows 11)
 
 | Step | Result | Screenshot |
