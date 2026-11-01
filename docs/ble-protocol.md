@@ -1,12 +1,13 @@
 # WB-RC100 (CB08) recorder card — BLE protocol, sample edition
 
-Version 1.1-S · 2026-10-20 · free edition for developers evaluating the recorder
+Version 1.2-S · 2026-11-01 · free edition for developers evaluating the recorder
 
-This edition covers connecting, device information, the device ID, the file list, downloading and deleting.
+This edition covers connecting, device information, the device ID, the file list, downloading (with resume) and deleting.
 That is enough to build your own Android or iOS app that pulls recordings off the card.
 
-Real-time audio, remote recording control, reconnect handling, resuming downloads, segment download and
-microphone gain are in the order edition, delivered with a volume order. Section numbers are the same in both editions.
+Real-time audio, remote recording control, reconnect handling with recovery of missed audio, segment download,
+microphone gain and tested parameters for long or repeated download interruptions are in the order edition,
+delivered with the developer package (1,000+ cards). Section numbers are the same in both editions.
 
 | Item | Content |
 |---|---|
@@ -27,7 +28,7 @@ All items were tested on a real card with firmware V1.0.0.
 | Real-time audio stream while recording | Yes, tested | Order edition |
 | Control recording from the app (start, pause, resume, stop) | Yes, tested | Order edition |
 | Keep recording when Bluetooth drops, and recover the missed audio | Yes, tested | Order edition |
-| Resume an interrupted download | Yes, tested | Order edition |
+| Resume an interrupted download | Yes, tested | Section 8.3. The order edition adds tested parameters for long or repeated interruptions |
 | Download only part of a file | Yes, tested | Order edition |
 | Microphone gain | Yes, tested | Order edition |
 | Firmware update over Bluetooth | No | The protocol has no update command |

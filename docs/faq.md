@@ -5,11 +5,15 @@ No. The recorder needs no pairing, bonding or authorization. Connect, subscribe 
 
 **Can I build my own app without buying anything?**
 Yes. The protocol in `docs/` and the sample in `android-sample/` already download (with resume), play, transcribe, share and delete recordings, and build into an APK.
-A sample order (USD 55 per card, shipping included) adds the complete reference app source (developer version) and engineering support; the volume-order edition adds real-time audio, recording control and recovery of audio missed while Bluetooth was down.
+A sample order (USD 55 per card, shipping included) adds the complete reference app source (developer version, Android only). The developer package (1,000+ cards) adds real-time audio, recording control, recovery of audio missed while Bluetooth was down, and engineering support.
 
 **I don't have a card yet. Can you help me evaluate?**
 Install the APK from Releases and tap **Try demo (no recorder needed)**: it runs the whole flow on a recording from a real card.
-Read the protocol and the source here; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included). Engineering support starts with a sample order: https://aihwstack.com/en/products/recorder/developer/
+Read the protocol and the source here; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included): https://aihwstack.com/en/products/recorder/developer/
+Ask questions any time in GitHub Discussions. Dedicated engineering support from our team comes with the developer package (1,000+ cards).
+
+**What is the minimum order?**
+Samples start at 1 card. You can start with 100 cards; the full developer package and engineering support start at 1,000 units. Prices are on the developer page.
 
 **Recordings sound quiet. Can I raise the volume?**
 Microphone gain control is part of the order-edition protocol. With the sample edition, recordings use the card's default gain, which can sound quiet on phone calls; speech-to-text still works. You can also raise the volume in your app when playing back.
