@@ -63,10 +63,12 @@ Card firmware V1.0.0, November 2026:
 
 | | Device | Tested |
 |---|---|---|
-| Android sample 1.1.0 | Xiaomi Mi 6, Android 9 | Connect, device info, list, download, play, transcribe (also a 30-minute recording sent in 10-minute pieces), demo mode |
+| Android sample 1.1.0 | Xiaomi Mi 6, Android 9 | Connect, device info, list, download, resume after an interrupted download (same bytes as a full download), play, transcribe (also a 30-minute recording sent in 10-minute pieces), share, delete from the card, demo mode |
 | Web demo | Chrome on Windows 11 | Connect, device info, list, download, pause and resume, play, save `.ogg` |
+| Card as a USB drive | Windows 11 PC, iPhone (Files app) | The card shows up as a USB drive |
 
 On a PC the web demo downloads more slowly than the phone app, because the browser cannot ask for a faster Bluetooth connection.
+Step-by-step results and screenshots: [docs/tested.md](docs/tested.md).
 
 ## What is free, and what comes with a sample or volume order
 
