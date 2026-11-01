@@ -100,7 +100,7 @@ The recorder replies 85 %: `5A 01 46 28 03 00 00 04 55`
 | On the card | Bare Opus packets back to back: no header, no container, no length prefix |
 | Storage use | 7,200,000 bytes per hour. Tested: a 3,601 s recording is exactly 7,202,000 bytes |
 | Long recordings | The card closes the file after 3,601 s and continues in a new file. Join them in your app if you need one file |
-| Capacity | A 32 GB card reports 30,523,392 KB total: about 255 hours of recording (the card stores Opus + WAV) |
+| Capacity | A 32 GB card reports 30,523,392 KB total: about 255 hours of recording with firmware V1.0.0, which stores Opus + WAV; about 4,341 hours with Opus-only firmware (available for volume orders) |
 
 To play or upload a file, wrap the packets in Ogg Opus (RFC 7845): split every 40 bytes, one packet per frame, 960 samples per frame at 48 kHz granule rate.
 
