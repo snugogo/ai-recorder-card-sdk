@@ -19,5 +19,5 @@ Thanks for helping. Bug reports, protocol findings and pull requests are welcome
 
 ## Commercial questions
 
-Sample cards, volume orders and engineering support: https://aihwstack.com/en/products/recorder/developer/
+Sample cards, hardware orders and the developer package (with engineering support, 1,000+ cards): https://aihwstack.com/en/products/recorder/developer/
 Please don't use issues for these; we answer them faster through the developer page.

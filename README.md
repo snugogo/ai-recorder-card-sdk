@@ -70,17 +70,19 @@ Card firmware V1.0.0, November 2026:
 On a PC the web demo downloads more slowly than the phone app, because the browser cannot ask for a faster Bluetooth connection.
 Step-by-step results and screenshots: [docs/tested.md](docs/tested.md).
 
-## What is free, and what comes with a sample or volume order
+## What is free, and what comes with an order
 
 You can build a working app from this repository alone. The paid tiers save you time; they do not unlock the device.
 
-| | Free (this repo) | Sample order | Volume order (1,000+; smaller first orders on request) | Your brand (1,000+; smaller first orders on request) |
-|---|---|---|---|---|
-| Protocol | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain | — |
-| Code | Android sample app: download with resume, play, transcribe, share, delete | Complete reference app source (developer version) + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
-| License fee / royalties | None | None | None | 10 % revenue share, no license fee |
+| | Free (this repo) | Sample order (from 1 card) | Hardware order (100–999 cards) | Developer package (1,000+ cards) | Your brand (1,000+ cards) |
+|---|---|---|---|---|---|
+| Protocol | Sample edition | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain | — |
+| Code | Android sample app: download with resume, play, transcribe, share, delete | Plus the complete reference app source (developer version, Android only) | Same as a sample order | Plus order-edition source and APK, and a Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
+| Help | GitHub Discussions and Issues | Self-service: full docs and source, plus GitHub Discussions | Self-service: full docs and source, plus GitHub Discussions | Dedicated engineering support from our team | — |
+| License fee / royalties | None | None | None | None | 10 % revenue share, no license fee |
 
-A sample card costs **USD 55, shipping included**, and comes with engineering support. Current terms: https://aihwstack.com/en/products/recorder/developer/
+You can start with 100 cards; the full developer package and engineering support start at 1,000 units.
+A sample card costs **USD 55, shipping included**. Prices and current terms: https://aihwstack.com/en/products/recorder/developer/
 
 ## How this compares with closed SDKs
 
@@ -96,5 +98,7 @@ recordings never pass through our servers, and there is no per-device fee.
   "AI HW Stack, https://aihwstack.com".
 - **Names and logos**: "WB-RC100" and "AI HW Stack" are not licensed by this repository. Do not use them to name your product
   or to suggest that we made or endorse it.
+- **Services are for cards bought from us**: engineering support, order-edition materials and the brand option
+  come only with recorder cards bought from us. The code and documentation licenses above are not limited this way.
 - **No warranty, tested hardware only**: the protocol and sample are tested on cards we ship (firmware V1.0.0).
   Cards from other sources may run different firmware; we cannot support them.
