@@ -70,7 +70,7 @@ a { color:var(--accent); }
 const SVC = 0xae20, WRITE = 0xae21, N1 = 0xae22, N2 = 0xae23;
 const T_CTRL = 0, T_FILE = 2;
 const C = { SYNC_TIME:0, GET_CAP:1, CAP:2, GET_BAT:3, BAT:4, GET_FW:10, FW:11, GET_ID:12, ID:13,
-            LIST:0, LIST_DATA:1, IMPORT:2, DATA:4, IMPORT_END:5, LIST_END:18 };
+            LIST:0, LIST_DATA:1, IMPORT:2, DATA:4, IMPORT_END:5, ABORT:7, LIST_END:18 };
 const FRAME_BYTES = 40, STALL_MS = 12000;
 
 function crc16(b, off, len) {               // CRC-16/XMODEM over LEN bytes + DATA
@@ -169,6 +169,7 @@ let dev = null, writeChar = null, demo = false;
 let files = [], listTimer = 0;
 const got = new Map();                      // base -> Uint8Array chunks received so far (kept across reconnects = resume)
 let dl = null;                              // { f, parts, received, lastAt, row }
+let pausedAt = 0;
 
 function onPacket(type, cmd, body) {
   if (type === T_CTRL) {
@@ -247,6 +248,8 @@ async function download(f) {
   const have = got.get(f.base) || new Uint8Array(0);
   if (have.length >= f.size) { log('Already downloaded.'); return; }
   if (demo) { await demoDownload(f); return; }
+  const settle = pausedAt + 1500 - Date.now();               // let packets already in flight after a pause drain
+  if (settle > 0) { pausedAt = 0; await new Promise((r) => setTimeout(r, settle)); if (dl) return; }
   const offset = have.length - (have.length % FRAME_BYTES);   // resume from a whole 40-byte packet
   dl = { f, parts: [have.slice(0, offset)], received: offset, lastAt: Date.now() };
   log((offset ? `Resuming from byte ${offset}` : 'Downloading') + ` ${f.base}.opus ...`);
@@ -259,6 +262,14 @@ async function download(f) {
     setTimeout(tick, 1000);
   };
   setTimeout(tick, 1000);
+}
+function pause() {                          // 2-7 aborts the transfer; what arrived so far is kept for resume
+  if (!dl) return;
+  const f = dl.f;
+  if (!demo) { send(T_FILE, C.ABORT); pausedAt = Date.now(); }
+  got.set(f.base, cat(...dl.parts)); dl = null;
+  log(`Paused at ${fmtSize(got.get(f.base).length)}. Tap Resume download to continue.`);
+  render();
 }
 function progress() {
   const bar = document.querySelector(`[data-bar="${dl.f.base}"]`);
@@ -289,12 +300,14 @@ function leaveDemo() { if (demo) { demo = false; files = []; got.delete(DEMO_FIL
 async function demoDownload(f) {
   try {
     const raw = new Uint8Array(await (await fetch(DEMO_URL)).arrayBuffer());
-    dl = { f, parts: [], received: 0, lastAt: Date.now() }; render();
-    for (let o = 0; o < raw.length; o += 2000) {        // feed it at about the card's real speed (~31 KB/s)
-      const c = raw.slice(o, o + 2000); dl.parts.push(c); dl.received += c.length; progress();
+    const have = got.get(f.base) || new Uint8Array(0);
+    const d = dl = { f, parts: [have], received: have.length, lastAt: Date.now() }; render();
+    for (let o = have.length; o < raw.length; o += 2000) {   // feed it at about the card's real speed (~31 KB/s)
+      if (dl !== d) return;                                   // paused
+      const c = raw.slice(o, o + 2000); d.parts.push(c); d.received += c.length; progress();
       await new Promise((r) => setTimeout(r, 60));
     }
-    endDownload(0);
+    if (dl === d) endDownload(0);
   } catch (e) { dl = null; log('Demo download failed: ' + e.message + ' (open this page over http(s), not as a local file)'); render(); }
 }
 
@@ -311,7 +324,8 @@ function render() {
     if (running || (have && !done) || done) row.appendChild(bar);
     const btns = document.createElement('div'); btns.className = 'row';
     const b = (t, fn, dis) => { const x = document.createElement('button'); x.textContent = t; x.disabled = !!dis; x.onclick = fn; btns.appendChild(x); return x; };
-    b(running ? 'Downloading ...' : have && !done ? 'Resume download' : 'Download', () => download(f), running || done || (!demo && !(dev && dev.gatt.connected)));
+    if (running) b('Pause', pause);
+    else b(have && !done ? 'Resume download' : 'Download', () => download(f), done || (!demo && !(dev && dev.gatt.connected)));
     b('Play', () => play(f, row), !done);
     b('Save .ogg', () => save(f), !done);
     row.appendChild(btns);
@@ -338,7 +352,8 @@ if (!navigator.bluetooth) {
   $('btnConnect').disabled = true;
   $('support').innerHTML = '<span class="warn">This browser has no Web Bluetooth. Use Chrome or Edge on Windows, macOS, Android or ChromeOS to connect a card.</span> The demo works in any browser.';
 } else {
-  $('support').textContent = 'Chrome or Edge. The card must be switched on and not connected to another app.';
+  $('support').textContent = 'Chrome or Edge. The card must be switched on and not connected to another app. '
+    + 'Downloads are slower than in a phone app: the browser cannot ask for a faster Bluetooth connection.';
 }
 </script>
 </body>
