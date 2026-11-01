@@ -104,7 +104,23 @@ The recorder replies 85 %: `5A 01 46 28 03 00 00 04 55`
 
 To play or upload a file, wrap the packets in Ogg Opus (RFC 7845): split every 40 bytes, one packet per frame, 960 samples per frame at 48 kHz granule rate.
 
-Most packets use Opus "code 3" with zero padding. Android 9's built-in decoder rejects these; rewriting them as plain single-frame packets is lossless (decoded PCM is bit-identical).
+Sample cards are 32 GB. Volume orders can have up to 512 GB.
+
+### 4.1 Android 9 playback: rewrite "code 3" packets
+
+Most packets use Opus "code 3" with zero padding. Android 9's built-in decoder (`OMX.google.opus`) rejects these: playback fails or is silent.
+ffmpeg, Chrome, Firefox and libopus decode them fine. Rewriting them as plain single-frame packets is lossless (decoded PCM is bit-identical).
+
+For each 40-byte packet `p`:
+
+1. `toc = p[0]`. If `toc & 3 != 3`, keep the packet as it is.
+2. `fc = p[1]` (frame count byte). If `fc & 0x3F != 1` (more than one frame) or `fc & 0x80` (VBR) is set, keep the packet as it is.
+3. If `fc & 0x40` (padding) is set, read the padding length starting at `p[2]`: each byte adds its value, except `255`, which adds 254 and means another length byte follows. `i` is the index after the last length byte; without padding, `i = 2` and the padding is 0.
+4. Frame data = `p[i .. 40 - padding)`.
+5. New packet = `[toc & 0xFC]` + frame data (code 0: one frame, no padding).
+
+Example from a real card: `4B 41 1E …` is code 3, one frame, padding 30 bytes, so the frame is bytes 3–9 (7 bytes) and the new packet is `48` + those 7 bytes.
+Reference implementation: `OggOpus.repack()` in `android-sample/`.
 
 The card can also return WAV (16 kHz, 16-bit PCM, mono) if you request the file name with the extension `.wav`. WAV is 16 times larger than Opus and downloads slower than real time at about 30 KB/s. We recommend Opus.
 
