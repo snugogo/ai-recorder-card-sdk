@@ -8,7 +8,8 @@ Yes. The protocol in `docs/` and the sample in `android-sample/` already downloa
 A sample order (USD 55 per card, shipping included) adds the complete reference app source (developer version) and engineering support; the volume-order edition adds real-time audio, recording control and recovery of audio missed while Bluetooth was down.
 
 **I don't have a card yet. Can you help me evaluate?**
-Read the protocol and the source here first; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included). Engineering support starts with a sample order: https://aihwstack.com/en/products/recorder/developer/
+Install the APK from Releases and tap **Try demo (no recorder needed)**: it runs the whole flow on a recording from a real card.
+Read the protocol and the source here; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included). Engineering support starts with a sample order: https://aihwstack.com/en/products/recorder/developer/
 
 **Do recordings go through your servers?**
 No. The card talks to your app over Bluetooth. Where the audio goes next — your phone, your server, a transcription API — is your choice.
