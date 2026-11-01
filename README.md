@@ -19,13 +19,22 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 | Bluetooth | BLE GATT, service `0xAE20`; write `0xAE21`; notify `0xAE22` / `0xAE23`; no pairing or authorization |
 | Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
 | Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
-| Storage | 32 GB: about 255 hours with the current firmware (it stores Opus + WAV); about 4,300 hours with Opus-only firmware, available for volume orders |
+| Storage | Sample cards: 32 GB, about 255 hours with the current firmware (it stores Opus + WAV). Volume orders: up to 512 GB, and Opus-only firmware (about 4,300 hours per 32 GB) |
 | Platforms | Same protocol on Android and iOS |
 | Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
 
+## Try it without a card
+
+Install the APK from [Releases](https://github.com/snugogo/ai-recorder-card-sdk/releases) (Android 6.0 or later) and tap **Try demo (no recorder needed)**.
+A recording made on a real card is built in: Download, Play, Transcribe, Share and Delete run the same code as with a card.
+Without a speech-to-text service set up, Transcribe shows the sample's transcript; with one, it transcribes the audio for real.
+
+The APK is signed with a key used only for this sample. Certificate SHA-256:
+`81:5B:11:12:3D:8E:92:64:53:17:3F:16:92:06:65:F5:10:93:57:A1:BD:EF:56:C9:44:A6:AD:49:0F:3A:0B:FE`
+
 ## Quick start (Android)
 
-1. Open `android-sample/` in Android Studio (AGP 8.2, compileSdk 34, minSdk 23) and run it on a phone.
+1. Install the APK from Releases, or open `android-sample/` in Android Studio (AGP 8.2, compileSdk 34, minSdk 23) and run it on a phone.
 2. Switch the recorder on. Tap **Scan and connect** → battery, firmware, storage and device ID appear.
 3. Tap **List recordings**. Each recording has **Download**, **Play**, **Transcribe**, **Share** and **Delete**.
 4. **Download** resumes from the last byte if the link drops (reconnect and tap it again).
@@ -35,7 +44,9 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 7. **Share** sends the recording as an `.ogg` file to any app (mail, chat, cloud drive), with the transcript as text if there is one.
 
 Source: `Protocol.java` (frames, CRC, list parsing), `OggOpus.java` (wraps the card's bare Opus packets into Ogg; also fixes playback on Android 9),
-`Transcriber.java` (speech-to-text), `ShareProvider.java` (hands files to other apps), `MainActivity.java` (Bluetooth and UI).
+`Transcriber.java` (speech-to-text), `ShareProvider.java` (hands files to other apps), `MainActivity.java` (Bluetooth, UI and demo mode).
+`assets/demo-sample.opus` is a 42-second recording exactly as the card stores it (2,123 bare 40-byte Opus packets): a handy test file for your own parser.
+To build a signed release yourself, see the comment in `app/build.gradle`; no key is stored in this repository.
 
 On Android 6–11, allow Location and switch Location on, otherwise Bluetooth scanning finds nothing.
 
