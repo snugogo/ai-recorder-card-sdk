@@ -9,7 +9,7 @@ and deletes them from the card, so you can build your own AI note-taker app with
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
 - 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, delete, import from USB. Plain Java, no third-party libraries, builds an APK
 - ❓ [FAQ](docs/faq.md)
-- 🛒 Developer page and samples: https://aihwstack.com/en/products/recorder/developer/
+- 🛒 Buy a card to test: **USD 55 per sample card, shipping included**. Order and developer page: https://aihwstack.com/en/products/recorder/developer/
 
 ## Specs
 
@@ -19,7 +19,7 @@ and deletes them from the card, so you can build your own AI note-taker app with
 | Bluetooth | BLE GATT, service `0xAE20`; write `0xAE21`; notify `0xAE22` / `0xAE23`; no pairing or authorization |
 | Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
 | Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
-| Storage | 32 GB: about 4,300 hours of Opus |
+| Storage | 32 GB: about 255 hours (Opus + WAV) |
 | Platforms | Same protocol on Android and iOS |
 | Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
 
@@ -42,13 +42,13 @@ On Android 6–11, allow Location and switch Location on, otherwise Bluetooth sc
 
 You can build a working app from this repository alone. The paid tiers save you time; they do not unlock the device.
 
-| | Free (this repo) | Sample order | Volume order (1,000+) | Your brand (500+) |
+| | Free (this repo) | Sample order | Volume order (1,000+; smaller first orders on request) | Your brand (1,000+; smaller first orders on request) |
 |---|---|---|---|---|
-| Protocol | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, resume, segment download, mic gain | — |
-| Code | Android sample app: download with resume, play, transcribe, delete | Full reference app source: finished UI, sharing, background download, project ready to rebrand + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our finished app under your brand |
+| Protocol | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain | — |
+| Code | Android sample app: download with resume, play, transcribe, delete | Complete reference app source (developer version) + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
 | License fee / royalties | None | None | None | 10 % revenue share, no license fee |
 
-Prices and current terms: https://aihwstack.com/en/products/recorder/developer/
+A sample card costs **USD 55, shipping included**, and comes with engineering support. Current terms: https://aihwstack.com/en/products/recorder/developer/
 
 ## How this compares with closed SDKs
 
