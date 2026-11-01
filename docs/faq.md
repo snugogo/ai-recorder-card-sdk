@@ -11,6 +11,9 @@ A sample order (USD 55 per card, shipping included) adds the complete reference 
 Install the APK from Releases and tap **Try demo (no recorder needed)**: it runs the whole flow on a recording from a real card.
 Read the protocol and the source here; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included). Engineering support starts with a sample order: https://aihwstack.com/en/products/recorder/developer/
 
+**Recordings sound quiet. Can I raise the volume?**
+Microphone gain control is part of the order-edition protocol. With the sample edition, recordings use the card's default gain, which can sound quiet on phone calls; speech-to-text still works. You can also raise the volume in your app when playing back.
+
 **Do recordings go through your servers?**
 No. The card talks to your app over Bluetooth. Where the audio goes next — your phone, your server, a transcription API — is your choice.
 
