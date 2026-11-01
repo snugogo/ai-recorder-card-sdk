@@ -64,6 +64,7 @@ Card firmware V1.0.0, November 2026:
 | | Device | Tested |
 |---|---|---|
 | Android sample 1.1.0 | Xiaomi Mi 6, Android 9 | Connect, device info, list, download, resume after an interrupted download (same bytes as a full download), play, transcribe (also a 30-minute recording sent in 10-minute pieces), share, delete from the card, demo mode |
+| Reference app 1.0.5 (comes with a sample order) | Xiaomi Mi 6, Android 9 | Download of a 1-hour recording (6.9 MB) at 30.4 KB/s in about 4 minutes, file complete; long recordings split into 1-hour files |
 | Web demo | Chrome on Windows 11 | Connect, device info, list, download, pause and resume, play, save `.ogg` |
 | Card as a USB drive | Windows 11 PC, iPhone (Files app) | The card shows up as a USB drive |
 
