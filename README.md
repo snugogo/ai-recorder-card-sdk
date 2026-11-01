@@ -11,7 +11,7 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 *The Android sample with a real card on a Xiaomi Mi 6 (Android 9): connect, read device info, list, download and transcribe a 58-second phone call the card recorded in call mode. The transcript (in Chinese, a bank's automated phone menu) comes from OpenAI speech-to-text, entered in the app's settings.*
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
-- 🌐 [Web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/): connect a card from Chrome or Edge (Web Bluetooth), list, download with resume, play and save. Has a no-card demo too
+- 🌐 [Web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/): connect a card from Chrome or Edge (Web Bluetooth), list, download with pause and resume, play and save. Has a no-card demo too
 - 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, share, delete, import from USB. Plain Java, no third-party libraries, builds an APK
 - ❓ [FAQ](docs/faq.md)
 - 🛒 Buy a card to test: **USD 55 per sample card, shipping included**. Order and developer page: https://aihwstack.com/en/products/recorder/developer/
@@ -56,6 +56,17 @@ Source: `Protocol.java` (frames, CRC, list parsing), `OggOpus.java` (wraps the c
 To build a signed release yourself, see the comment in `app/build.gradle`; no key is stored in this repository.
 
 On Android 6–11, allow Location and switch Location on, otherwise Bluetooth scanning finds nothing.
+
+## Tested with a real card
+
+Card firmware V1.0.0, November 2026:
+
+| | Device | Tested |
+|---|---|---|
+| Android sample 1.1.0 | Xiaomi Mi 6, Android 9 | Connect, device info, list, download, play, transcribe (also a 30-minute recording sent in 10-minute pieces), demo mode |
+| Web demo | Chrome on Windows 11 | Connect, device info, list, download, pause and resume, play, save `.ogg` |
+
+On a PC the web demo downloads more slowly than the phone app, because the browser cannot ask for a faster Bluetooth connection.
 
 ## What is free, and what comes with a sample or volume order
 
