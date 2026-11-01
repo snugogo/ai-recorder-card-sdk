@@ -2,12 +2,12 @@
 
 WB-RC100 is a card-sized AI voice recorder (86 × 54 × 3.2 mm) with a documented Bluetooth LE protocol.
 This repository contains the free protocol document and a plain-Java Android sample app that connects to the card,
-downloads recordings (with resume), plays them, transcribes them with any OpenAI-compatible speech-to-text API
-and deletes them from the card, so you can build your own AI note-taker app without our cloud.
+downloads recordings (with resume), plays them, transcribes them with any OpenAI-compatible speech-to-text API,
+shares them and deletes them from the card, so you can build your own AI note-taker app without our cloud.
 **No license fee, no royalties, no per-device fee.**
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
-- 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, delete, import from USB. Plain Java, no third-party libraries, builds an APK
+- 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, share, delete, import from USB. Plain Java, no third-party libraries, builds an APK
 - ❓ [FAQ](docs/faq.md)
 - 🛒 Buy a card to test: **USD 55 per sample card, shipping included**. Order and developer page: https://aihwstack.com/en/products/recorder/developer/
 
@@ -27,14 +27,15 @@ and deletes them from the card, so you can build your own AI note-taker app with
 
 1. Open `android-sample/` in Android Studio (AGP 8.2, compileSdk 34, minSdk 23) and run it on a phone.
 2. Switch the recorder on. Tap **Scan and connect** → battery, firmware, storage and device ID appear.
-3. Tap **List recordings**. Each recording has **Download**, **Play**, **Transcribe** and **Delete**.
+3. Tap **List recordings**. Each recording has **Download**, **Play**, **Transcribe**, **Share** and **Delete**.
 4. **Download** resumes from the last byte if the link drops (reconnect and tap it again).
 5. **Import audio file (USB)**: connect the card to the phone with a USB data cable; it appears as a USB drive (USB 2.0).
    Pick a recording in the system file picker and it is transcribed. Some cables only charge and carry no data.
 6. **Transcribe** asks once for base URL, API key and model of any OpenAI-compatible speech-to-text service. The key is stored only on the phone; long recordings are sent in 10-minute pieces.
+7. **Share** sends the recording as an `.ogg` file to any app (mail, chat, cloud drive), with the transcript as text if there is one.
 
 Source: `Protocol.java` (frames, CRC, list parsing), `OggOpus.java` (wraps the card's bare Opus packets into Ogg; also fixes playback on Android 9),
-`Transcriber.java` (speech-to-text), `MainActivity.java` (Bluetooth and UI).
+`Transcriber.java` (speech-to-text), `ShareProvider.java` (hands files to other apps), `MainActivity.java` (Bluetooth and UI).
 
 On Android 6–11, allow Location and switch Location on, otherwise Bluetooth scanning finds nothing.
 
@@ -45,7 +46,7 @@ You can build a working app from this repository alone. The paid tiers save you 
 | | Free (this repo) | Sample order | Volume order (1,000+; smaller first orders on request) | Your brand (1,000+; smaller first orders on request) |
 |---|---|---|---|---|
 | Protocol | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain | — |
-| Code | Android sample app: download with resume, play, transcribe, delete | Complete reference app source (developer version) + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
+| Code | Android sample app: download with resume, play, transcribe, share, delete | Complete reference app source (developer version) + engineering support | Order-edition source (real-time audio, recording control, missed-audio recovery) + Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
 | License fee / royalties | None | None | None | 10 % revenue share, no license fee |
 
 A sample card costs **USD 55, shipping included**, and comes with engineering support. Current terms: https://aihwstack.com/en/products/recorder/developer/
