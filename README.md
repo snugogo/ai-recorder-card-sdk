@@ -19,7 +19,7 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 | Bluetooth | BLE GATT, service `0xAE20`; write `0xAE21`; notify `0xAE22` / `0xAE23`; no pairing or authorization |
 | Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
 | Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
-| Storage | 32 GB: about 255 hours (Opus + WAV) |
+| Storage | 32 GB: about 255 hours with the current firmware (it stores Opus + WAV); about 4,300 hours with Opus-only firmware, available for volume orders |
 | Platforms | Same protocol on Android and iOS |
 | Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
 
