@@ -51,6 +51,7 @@ import java.util.UUID;
  * Scan and connect, read battery / firmware / storage / device ID, list recordings, then per recording:
  * download (resumes from the last byte if the link dropped), play, transcribe through any
  * OpenAI-compatible speech-to-text API, share (audio + transcript), delete from the card.
+ * Without a card, "Try demo" runs the same flow on a bundled recording.
  *
  * One Activity, no third-party libraries. Protocol: docs/ble-protocol.md.
  */
@@ -106,6 +107,7 @@ public class MainActivity extends Activity {
         btnList = button(root, "List recordings", v -> requestList());
         button(root, "Import audio file (USB) and transcribe", v -> pickFile());
         button(root, "Speech-to-text settings", v -> showAsrSettings());
+        button(root, "Try demo (no recorder needed)", v -> startDemo());
         btnList.setEnabled(false);
         listView = new LinearLayout(this);
         listView.setOrientation(LinearLayout.VERTICAL);
@@ -153,6 +155,7 @@ public class MainActivity extends Activity {
 
     private void startScan() {
         if (gatt != null) { log("Already connected."); return; }
+        if (demo) { demo = false; files.clear(); listView.removeAllViews(); log("Demo mode off."); }
         BluetoothAdapter a = ((BluetoothManager) getSystemService(BLUETOOTH_SERVICE)).getAdapter();
         if (a == null || !a.isEnabled()) { log("Bluetooth is off."); return; }
         scanner = a.getBluetoothLeScanner();
@@ -284,6 +287,7 @@ public class MainActivity extends Activity {
     private void download(Protocol.DeviceFile f) {
         if (dlFile != null) { log("A download is already running."); return; }
         if (doneFile(f).length() == f.size) { log(f.fileName() + " is already downloaded."); return; }
+        if (demo) { demoDownload(f); return; }
         if (gatt == null) { log("Connect first."); return; }
         File part = partFile(f);
         // Resume from the bytes we already have, rounded down to a whole 40-byte Opus packet.
@@ -382,6 +386,14 @@ public class MainActivity extends Activity {
     }
 
     private void transcribe(Protocol.DeviceFile f) {
+        if (demo && !asr.configured()) {
+            // No speech-to-text service yet: show the sample's transcript so the whole flow can be seen.
+            if (readDone(f) == null) return;
+            try (FileOutputStream o = new FileOutputStream(transcriptFile(f))) { o.write(DEMO_TRANSCRIPT.getBytes(StandardCharsets.UTF_8)); }
+            catch (IOException ignored) { }
+            log("Transcript (built-in for the demo; set up Speech-to-text to transcribe it yourself):\n" + DEMO_TRANSCRIPT);
+            return;
+        }
         if (!asr.configured()) { showAsrSettings(); return; }
         byte[] raw = readDone(f);
         if (raw == null) return;
@@ -486,9 +498,52 @@ public class MainActivity extends Activity {
         }
     }
 
+    // ------------------------------------------------------------------ demo (no recorder needed)
+
+    /*
+     * A virtual card with one real recording made on a WB-RC100 (assets/demo-sample.opus: 2,123 bare 40-byte Opus
+     * packets, 42 s, exactly as the card stores them). Download copies it from the APK; Play, Transcribe, Share and
+     * Delete then run the same code as with a real card.
+     */
+    static final String DEMO_ASSET = "demo-sample.opus";
+    static final String DEMO_TRANSCRIPT = "This is the AI recorder card. It records offline with two microphones and stores up to 64 GB. "
+            + "After a meeting, open the app on your phone. The recording is sent over Bluetooth and one hour of audio arrives in about 4 minutes. "
+            + "Then tap transcript and the app turns your voice into text using your own speech-to-text service.";
+    private boolean demo;
+
+    private void startDemo() {
+        if (gatt != null) { log("Disconnect the recorder first (close the app) to try the demo."); return; }
+        demo = true;
+        Protocol.DeviceFile f = new Protocol.DeviceFile();
+        f.base = "note20261008-015901";
+        f.raw = f.base + ".";
+        f.durationSec = 42;
+        f.size = 84920;
+        files.clear();
+        files.add(f);
+        log("Demo mode: one sample recording from a real card. Try Download, Play, Transcribe, Share and Delete. Tap Scan and connect to leave the demo.");
+        onListComplete();
+    }
+
+    private void demoDownload(Protocol.DeviceFile f) {
+        try (java.io.InputStream in = getAssets().open(DEMO_ASSET); FileOutputStream o = new FileOutputStream(doneFile(f))) {
+            byte[] buf = new byte[8192];
+            int r;
+            while ((r = in.read(buf)) > 0) o.write(buf, 0, r);
+            log("Done (demo, copied from the app): " + doneFile(f).getAbsolutePath());
+        } catch (IOException e) { log("Demo download failed: " + e); }
+    }
+
     // ------------------------------------------------------------------ delete
 
     private void confirmDelete(Protocol.DeviceFile f) {
+        if (demo) {
+            files.remove(f);
+            listView.removeAllViews();
+            for (Protocol.DeviceFile x : files) addRow(x);
+            log("Demo: removed from the list. On a real card this sends 2-8 (section 7 of the protocol).");
+            return;
+        }
         if (gatt == null) { log("Connect first."); return; }
         new AlertDialog.Builder(this).setTitle("Delete from the recorder?")
                 .setMessage(f.fileName() + "\n\nThis cannot be undone." + (doneFile(f).exists() ? "" : "\nIt has not been downloaded to this phone."))
