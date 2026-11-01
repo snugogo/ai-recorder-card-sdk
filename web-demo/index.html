@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recorder Card Web Demo</title>
+<meta name="description" content="Connect the WB-RC100 (CB08) AI voice recorder card from Chrome with Web Bluetooth: device info, list, download with resume, play. Or try it without a card.">
+<style>
+:root { --bg:#f7f7f5; --card:#fff; --fg:#1d1d1b; --muted:#6b6b66; --line:#e3e2dc; --accent:#1f6feb; --accent-fg:#fff; --ok:#1a7f37; --warn:#9a6700; }
+@media (prefers-color-scheme: dark) { :root { --bg:#141413; --card:#1e1e1c; --fg:#ecebe6; --muted:#a3a29b; --line:#33322f; --accent:#4c8dff; --accent-fg:#0b0b0a; --ok:#3fb950; --warn:#d29922; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+h1 { font-size:22px; margin:0 0 4px; }
+p.sub { color:var(--muted); margin:0 0 20px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; }
+.row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+button { font:inherit; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:8px; padding:8px 14px; cursor:pointer; }
+button.primary { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+button:disabled { opacity:.45; cursor:default; }
+.info { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:12px; }
+.info div { border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
+.info b { display:block; font-size:12px; color:var(--muted); font-weight:500; }
+.rec { border-top:1px solid var(--line); padding:12px 0; }
+.rec:first-child { border-top:0; }
+.rec .meta { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:8px; }
+.rec .meta span:first-child { font-weight:600; }
+.bar { height:4px; background:var(--line); border-radius:2px; overflow:hidden; margin:8px 0; }
+.bar i { display:block; height:100%; width:0; background:var(--accent); }
+audio { width:100%; margin-top:8px; }
+#log { font:12px/1.5 ui-monospace,Consolas,monospace; white-space:pre-wrap; color:var(--muted); max-height:220px; overflow:auto; margin:0; }
+.note { font-size:13px; color:var(--muted); }
+.warn { color:var(--warn); }
+a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Recorder card in your browser</h1>
+  <p class="sub">Connect a WB-RC100 (CB08) recorder card over Web Bluetooth: read device info, list recordings, download with resume and play them. Nothing is uploaded; everything stays in this page.</p>
+
+  <div class="card">
+    <div class="row">
+      <button class="primary" id="btnConnect">Connect a card</button>
+      <button id="btnDemo">Try demo (no card needed)</button>
+      <button id="btnList" disabled>List recordings</button>
+      <button id="btnDisconnect" disabled>Disconnect</button>
+    </div>
+    <p class="note" id="support"></p>
+    <div class="info" id="info" hidden>
+      <div><b>Battery</b><span id="iBat">–</span></div>
+      <div><b>Firmware</b><span id="iFw">–</span></div>
+      <div><b>Storage</b><span id="iCap">–</span></div>
+      <div><b>Device ID</b><span id="iId">–</span></div>
+    </div>
+  </div>
+
+  <div class="card" id="listCard" hidden><div id="list"></div></div>
+
+  <div class="card">
+    <pre id="log"></pre>
+  </div>
+
+  <p class="note">Protocol: <a href="https://github.com/snugogo/ai-recorder-card-sdk/blob/main/docs/ble-protocol.md">docs/ble-protocol.md</a> · Android sample and source: <a href="https://github.com/snugogo/ai-recorder-card-sdk">github.com/snugogo/ai-recorder-card-sdk</a> ·
+  Buy a sample card (USD 55, shipping included): <a href="https://aihwstack.com/en/products/recorder/developer/">aihwstack.com</a></p>
+</main>
+<script>
+'use strict';
+// ---------------------------------------------------------------- protocol (see docs/ble-protocol.md)
+const SVC = 0xae20, WRITE = 0xae21, N1 = 0xae22, N2 = 0xae23;
+const T_CTRL = 0, T_FILE = 2;
+const C = { SYNC_TIME:0, GET_CAP:1, CAP:2, GET_BAT:3, BAT:4, GET_FW:10, FW:11, GET_ID:12, ID:13,
+            LIST:0, LIST_DATA:1, IMPORT:2, DATA:4, IMPORT_END:5, LIST_END:18 };
+const FRAME_BYTES = 40, STALL_MS = 12000;
+
+function crc16(b, off, len) {               // CRC-16/XMODEM over LEN bytes + DATA
+  let c = 0;
+  for (let i = off; i < off + len; i++) {
+    c ^= b[i] << 8;
+    for (let k = 0; k < 8; k++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xffff : (c << 1) & 0xffff;
+  }
+  return c;
+}
+let seq = 0;
+function frame(type, cmd, p = new Uint8Array(0)) {   // 5A | SEQ | CRC16 LE | LEN LE | TYPE CMD params
+  const n = 2 + p.length, f = new Uint8Array(6 + n);
+  seq = (seq + 1) & 0xff;
+  f[0] = 0x5a; f[1] = seq; f[4] = n & 0xff; f[5] = n >> 8; f[6] = type; f[7] = cmd; f.set(p, 8);
+  const c = crc16(f, 4, 2 + n); f[2] = c & 0xff; f[3] = c >> 8;
+  return f;
+}
+class Parser {                              // one per notify characteristic: handles split and merged notifications
+  constructor(sink) { this.buf = new Uint8Array(0); this.sink = sink; }
+  feed(v) {
+    const b = new Uint8Array(this.buf.length + v.length); b.set(this.buf); b.set(v, this.buf.length); this.buf = b;
+    for (;;) {
+      let i = this.buf.indexOf(0x5a);
+      if (i < 0) { this.buf = new Uint8Array(0); return; }
+      if (i > 0) this.buf = this.buf.slice(i);
+      if (this.buf.length < 6) return;
+      const ln = this.buf[4] | (this.buf[5] << 8);
+      if (ln > 8192) { this.buf = this.buf.slice(1); continue; }
+      if (this.buf.length < 6 + ln) return;
+      if ((this.buf[2] | (this.buf[3] << 8)) !== crc16(this.buf, 4, 2 + ln)) { this.buf = this.buf.slice(1); continue; }
+      const d = this.buf.slice(6, 6 + ln); this.buf = this.buf.slice(6 + ln);
+      if (d.length >= 2) this.sink(d[0], d[1], d.slice(2));
+    }
+  }
+}
+const be32 = (d, o) => ((d[o] << 24) | (d[o + 1] << 16) | (d[o + 2] << 8) | d[o + 3]) >>> 0;
+const le32 = (d, o) => (d[o] | (d[o + 1] << 8) | (d[o + 2] << 16) | (d[o + 3] << 24)) >>> 0;
+const le32b = (v) => new Uint8Array([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >>> 24) & 0xff]);
+function name24(s) { const b = new Uint8Array(24); for (let i = 0; i < Math.min(24, s.length); i++) b[i] = s.charCodeAt(i); return b; }
+function cat(...a) { const r = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; }
+function parseList(b) {                     // count 4B BE + N x 28B (duration BE, size BE, name 20B)
+  const out = [];
+  if (b.length < 4) return out;
+  const n = Math.min(be32(b, 0), Math.floor((b.length - 4) / 28));
+  for (let i = 0; i < n; i++) {
+    const o = 4 + i * 28; let z = 0; while (z < 20 && b[o + 8 + z]) z++;
+    const raw = String.fromCharCode(...b.slice(o + 8, o + 8 + z)).trim();
+    out.push({ durationSec: be32(b, o), size: be32(b, o + 4), base: raw.replace(/\.+$/, '') });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- Ogg Opus (RFC 7845); bare 40-byte packets -> playable file
+const OGG_T = new Int32Array(256);
+for (let i = 0; i < 256; i++) { let r = i << 24; for (let k = 0; k < 8; k++) r = (r & 0x80000000) ? (r << 1) ^ 0x04c11db7 : r << 1; OGG_T[i] = r; }
+function oggCrc(b) { let c = 0; for (const x of b) c = (c << 8) ^ OGG_T[((c >>> 24) ^ x) & 0xff]; return c >>> 0; }
+function oggPage(serial, pseq, type, granule, packets) {
+  const segs = [];
+  for (const p of packets) { let n = p.length; while (n >= 255) { segs.push(255); n -= 255; } segs.push(n); }
+  const body = cat(...packets), p = new Uint8Array(27 + segs.length + body.length), dv = new DataView(p.buffer);
+  p.set([0x4f, 0x67, 0x67, 0x53, 0, type]);
+  dv.setUint32(6, granule % 0x100000000, true); dv.setUint32(10, Math.floor(granule / 0x100000000), true);
+  dv.setUint32(14, serial, true); dv.setUint32(18, pseq, true);
+  p[26] = segs.length; p.set(segs, 27); p.set(body, 27 + segs.length);
+  dv.setUint32(22, oggCrc(p), true);
+  return p;
+}
+function wrapOgg(raw) {
+  const ascii = (s) => Uint8Array.from(s, (ch) => ch.charCodeAt(0));
+  const serial = (Math.random() * 0xffffffff) >>> 0, pages = [];
+  const head = new Uint8Array(19); head.set(ascii('OpusHead')); head[8] = 1; head[9] = 1; head[10] = 312 & 0xff; head[11] = 312 >> 8;
+  new DataView(head.buffer).setUint32(12, 16000, true);
+  pages.push(oggPage(serial, 0, 2, 0, [head]));
+  const vendor = ascii('ai-recorder'), tags = new Uint8Array(16 + vendor.length);
+  tags.set(ascii('OpusTags')); tags[8] = vendor.length; tags.set(vendor, 12);
+  pages.push(oggPage(serial, 1, 0, 0, [tags]));
+  const nf = Math.floor(raw.length / FRAME_BYTES);
+  for (let i = 0, s = 2; i < nf; i += 50, s++) {
+    const c = Math.min(50, nf - i), pk = [];
+    for (let k = i; k < i + c; k++) pk.push(raw.slice(k * FRAME_BYTES, (k + 1) * FRAME_BYTES));
+    pages.push(oggPage(serial, s, i + 50 >= nf ? 4 : 0, (i + c) * 960, pk));
+  }
+  return new Blob(pages, { type: 'audio/ogg' });
+}
+
+// ---------------------------------------------------------------- UI helpers
+const $ = (id) => document.getElementById(id);
+const log = (s) => { const l = $('log'); l.textContent += s + '\n'; l.scrollTop = l.scrollHeight; };
+const fmtDur = (s) => s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const fmtSize = (b) => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.floor(b / 1024)) + ' KB';
+function dateText(base) { const d = base.replace(/[^0-9-]/g, ''); return d.length >= 15 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)} ${d.slice(9, 11)}:${d.slice(11, 13)}` : base; }
+
+// ---------------------------------------------------------------- state
+let dev = null, writeChar = null, demo = false;
+let files = [], listTimer = 0;
+const got = new Map();                      // base -> Uint8Array chunks received so far (kept across reconnects = resume)
+let dl = null;                              // { f, parts, received, lastAt, row }
+
+function onPacket(type, cmd, body) {
+  if (type === T_CTRL) {
+    if (cmd === C.BAT && body.length) $('iBat').textContent = body[0] === 110 ? 'charging' : body[0] + ' %';
+    else if (cmd === C.FW) $('iFw').textContent = String.fromCharCode(...body).trim();
+    else if (cmd === C.CAP && body.length >= 8) $('iCap').textContent = `${Math.round(le32(body, 0) / 1024)} MB free of ${Math.round(le32(body, 4) / 1024)} MB`;
+    else if (cmd === C.ID) $('iId').textContent = String.fromCharCode(...body).trim();
+  } else if (type === T_FILE) {
+    if (cmd === C.LIST_DATA) { files.push(...parseList(body)); clearTimeout(listTimer); listTimer = setTimeout(listDone, 1200); }
+    else if (cmd === C.LIST_END) listDone();
+    else if (cmd === C.DATA && dl) { dl.parts.push(body); dl.received += body.length; dl.lastAt = Date.now(); progress(); }
+    else if (cmd === C.IMPORT_END) endDownload(body.length ? body[0] : -1);
+  }
+}
+const p1 = new Parser(onPacket), p2 = new Parser(onPacket);   // separate reassembly buffer per characteristic
+
+let writeChain = Promise.resolve();
+function send(type, cmd, p) {
+  const f = frame(type, cmd, p);
+  writeChain = writeChain.then(() => writeChar.writeValueWithoutResponse(f)).then(() => new Promise((r) => setTimeout(r, 60)))
+    .catch((e) => log('Write failed: ' + e.message));
+  return writeChain;
+}
+
+// ---------------------------------------------------------------- connect
+async function connect() {
+  try {
+    leaveDemo();
+    dev = await navigator.bluetooth.requestDevice({
+      filters: [{ namePrefix: 'CB08' }, { namePrefix: 'QS668' }, { services: [SVC] }], optionalServices: [SVC] });
+    dev.addEventListener('gattserverdisconnected', onDisconnected);
+    log('Connecting to ' + (dev.name || 'recorder') + ' ...');
+    const server = await dev.gatt.connect();
+    const s = await server.getPrimaryService(SVC);
+    writeChar = await s.getCharacteristic(WRITE);
+    for (const [u, p] of [[N1, p1], [N2, p2]]) {          // some replies (battery 0-4) arrive on AE23
+      try {
+        const c = await s.getCharacteristic(u);
+        c.addEventListener('characteristicvaluechanged', (e) => p.feed(new Uint8Array(e.target.value.buffer)));
+        await c.startNotifications();
+      } catch (e) { log('Notify ' + u.toString(16) + ': ' + e.message); }
+    }
+    log('Connected.');
+    $('info').hidden = false;
+    const now = new Date(), y = now.getFullYear();
+    send(T_CTRL, C.SYNC_TIME, new Uint8Array([y & 0xff, y >> 8, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]));
+    for (const c of [C.GET_BAT, C.GET_FW, C.GET_CAP, C.GET_ID]) send(T_CTRL, c);
+    setButtons(true);
+    requestList();
+  } catch (e) { log(e.name === 'NotFoundError' ? 'No card chosen.' : 'Connect failed: ' + e.message); }
+}
+function onDisconnected() {
+  log('Disconnected.' + (dl ? ` Kept ${fmtSize(dl.received)}; connect again and tap Download to resume.` : ''));
+  if (dl) { got.set(dl.f.base, cat(...dl.parts)); dl = null; }
+  setButtons(false);
+  render();
+}
+function setButtons(on) { $('btnList').disabled = !on && !demo; $('btnDisconnect').disabled = !on; }
+
+// ---------------------------------------------------------------- list
+function requestList() {
+  if (demo) { render(); return; }
+  files = []; log('Listing ...');
+  send(T_FILE, C.LIST);
+}
+function listDone() {
+  clearTimeout(listTimer);
+  files.sort((a, b) => b.base.localeCompare(a.base));    // newest first
+  log(files.length + ' recording(s).');
+  render();
+}
+
+// ---------------------------------------------------------------- download with resume
+async function download(f) {
+  if (dl) { log('A download is already running.'); return; }
+  const have = got.get(f.base) || new Uint8Array(0);
+  if (have.length >= f.size) { log('Already downloaded.'); return; }
+  if (demo) { await demoDownload(f); return; }
+  const offset = have.length - (have.length % FRAME_BYTES);   // resume from a whole 40-byte packet
+  dl = { f, parts: [have.slice(0, offset)], received: offset, lastAt: Date.now() };
+  log((offset ? `Resuming from byte ${offset}` : 'Downloading') + ` ${f.base}.opus ...`);
+  render();
+  // 2-2: offset 4B LE + 24-byte name; 36 bytes in one write (Chrome negotiates a large enough MTU).
+  send(T_FILE, C.IMPORT, cat(le32b(offset), name24(f.base + '.opus')));
+  const tick = () => {
+    if (!dl || dl.f !== f) return;
+    if (Date.now() - dl.lastAt > STALL_MS) { log(`Stalled at ${dl.received} bytes. Tap Download to resume.`); got.set(f.base, cat(...dl.parts)); dl = null; render(); return; }
+    setTimeout(tick, 1000);
+  };
+  setTimeout(tick, 1000);
+}
+function progress() {
+  const bar = document.querySelector(`[data-bar="${dl.f.base}"]`);
+  if (bar) bar.style.width = Math.min(100, dl.received * 100 / dl.f.size) + '%';
+}
+function endDownload(code) {
+  if (!dl) return;
+  const f = dl.f, data = cat(...dl.parts); dl = null;
+  got.set(f.base, data);
+  if (code === 0 && data.length >= f.size) log(`Done: ${f.base}.opus, ${fmtSize(data.length)}.`);
+  else if (code === 0) log(`Ended at ${data.length} of ${f.size} bytes. Tap Download to resume.`);
+  else log(`Download ended with code ${code} (1 = no such file, 2 = offset too large, 3 = stopped).`);
+  render();
+}
+
+// ---------------------------------------------------------------- demo (no card): a recording made on a real card
+const DEMO_URL = '../android-sample/app/src/main/assets/demo-sample.opus';
+const DEMO_FILE = { base: 'note20261008-015901', durationSec: 42, size: 84920 };
+function startDemo() {
+  if (dev && dev.gatt.connected) { log('Disconnect the card first to try the demo.'); return; }
+  demo = true; files = [DEMO_FILE];
+  $('info').hidden = false;
+  $('iBat').textContent = '82 % (demo)'; $('iFw').textContent = 'V1.0.0 (demo)'; $('iCap').textContent = '29.1 GB free of 29.1 GB (demo)'; $('iId').textContent = 'demo';
+  log('Demo mode: one recording made on a real card. Download it, then play or save it.');
+  setButtons(false); render();
+}
+function leaveDemo() { if (demo) { demo = false; files = []; got.delete(DEMO_FILE.base); render(); } }
+async function demoDownload(f) {
+  try {
+    const raw = new Uint8Array(await (await fetch(DEMO_URL)).arrayBuffer());
+    dl = { f, parts: [], received: 0, lastAt: Date.now() }; render();
+    for (let o = 0; o < raw.length; o += 2000) {        // feed it at about the card's real speed (~31 KB/s)
+      const c = raw.slice(o, o + 2000); dl.parts.push(c); dl.received += c.length; progress();
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    endDownload(0);
+  } catch (e) { dl = null; log('Demo download failed: ' + e.message + ' (open this page over http(s), not as a local file)'); render(); }
+}
+
+// ---------------------------------------------------------------- render
+function render() {
+  const list = $('list'); list.textContent = '';
+  $('listCard').hidden = !files.length;
+  for (const f of files) {
+    const have = got.get(f.base), done = have && have.length >= f.size, running = dl && dl.f === f;
+    const row = document.createElement('div'); row.className = 'rec';
+    row.innerHTML = `<div class="meta"><span>${dateText(f.base)}</span><span>${fmtDur(f.durationSec)}</span><span>${fmtSize(f.size)}</span>${f.base.startsWith('call') ? '<span>call</span>' : ''}</div>`;
+    const bar = document.createElement('div'); bar.className = 'bar';
+    bar.innerHTML = `<i data-bar="${f.base}" style="width:${have ? Math.min(100, have.length * 100 / f.size) : 0}%"></i>`;
+    if (running || (have && !done) || done) row.appendChild(bar);
+    const btns = document.createElement('div'); btns.className = 'row';
+    const b = (t, fn, dis) => { const x = document.createElement('button'); x.textContent = t; x.disabled = !!dis; x.onclick = fn; btns.appendChild(x); return x; };
+    b(running ? 'Downloading ...' : have && !done ? 'Resume download' : 'Download', () => download(f), running || done || (!demo && !(dev && dev.gatt.connected)));
+    b('Play', () => play(f, row), !done);
+    b('Save .ogg', () => save(f), !done);
+    row.appendChild(btns);
+    list.appendChild(row);
+  }
+}
+function play(f, row) {
+  let a = row.querySelector('audio');
+  if (!a) { a = document.createElement('audio'); a.controls = true; row.appendChild(a); }
+  a.src = URL.createObjectURL(wrapOgg(got.get(f.base)));
+  a.play();
+}
+function save(f) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(wrapOgg(got.get(f.base))); a.download = f.base + '.ogg'; a.click();
+}
+
+// ---------------------------------------------------------------- start
+$('btnConnect').onclick = connect;
+$('btnDemo').onclick = startDemo;
+$('btnList').onclick = requestList;
+$('btnDisconnect').onclick = () => { if (dev && dev.gatt.connected) dev.gatt.disconnect(); };
+if (!navigator.bluetooth) {
+  $('btnConnect').disabled = true;
+  $('support').innerHTML = '<span class="warn">This browser has no Web Bluetooth. Use Chrome or Edge on Windows, macOS, Android or ChromeOS to connect a card.</span> The demo works in any browser.';
+} else {
+  $('support').textContent = 'Chrome or Edge. The card must be switched on and not connected to another app.';
+}
+</script>
+</body>
+</html>
