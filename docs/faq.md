@@ -4,8 +4,11 @@
 No. The recorder needs no pairing, bonding or authorization. Connect, subscribe to the two notify characteristics and send commands.
 
 **Can I build my own app without buying anything?**
-Yes. The protocol in `docs/` and the sample in `android-sample/` already download (with resume), play, transcribe and delete recordings, and build into an APK.
-The sample-order source code is a finished app with a full UI and comes with engineering support; the volume-order edition adds real-time audio, recording control and recovery of audio missed while Bluetooth was down.
+Yes. The protocol in `docs/` and the sample in `android-sample/` already download (with resume), play, transcribe, share and delete recordings, and build into an APK.
+A sample order (USD 55 per card, shipping included) adds the complete reference app source (developer version) and engineering support; the volume-order edition adds real-time audio, recording control and recovery of audio missed while Bluetooth was down.
+
+**I don't have a card yet. Can you help me evaluate?**
+Read the protocol and the source here first; everything in this repository is free. To test with real hardware, order a sample card (USD 55, shipping included). Engineering support starts with a sample order: https://aihwstack.com/en/products/recorder/developer/
 
 **Do recordings go through your servers?**
 No. The card talks to your app over Bluetooth. Where the audio goes next — your phone, your server, a transcription API — is your choice.
@@ -14,7 +17,7 @@ No. The card talks to your app over Bluetooth. Where the audio goes next — you
 None is built in. Our reference app accepts any OpenAI-compatible endpoint; the user enters base URL, key and model, and the key stays on the phone.
 
 **Is there a per-device or per-minute fee?**
-No license fee, no royalties, no per-device fee. Brand customization of our finished app is a 10 % revenue share.
+No license fee, no royalties, no per-device fee. Our published app can also be offered under your brand (1,000+ units, 10 % revenue share); its source is not provided.
 
 **Does it work on iPhone?**
 Yes, the protocol is the same. iOS hides the Bluetooth MAC, so use command 0-12 (device ID) to tell cards apart.
