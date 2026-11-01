@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Buy a sample card, volume orders, engineering support
+    url: https://aihwstack.com/en/products/recorder/developer/
+    about: Commercial questions are answered through the developer page, not in issues.
