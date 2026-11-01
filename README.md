@@ -7,6 +7,7 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 **No license fee, no royalties, no per-device fee.**
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
+- 🌐 [Web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/): connect a card from Chrome or Edge (Web Bluetooth), list, download with resume, play and save. Has a no-card demo too
 - 📱 [Android sample](android-sample/): scan, connect, list, download with resume, play, transcribe, share, delete, import from USB. Plain Java, no third-party libraries, builds an APK
 - ❓ [FAQ](docs/faq.md)
 - 🛒 Buy a card to test: **USD 55 per sample card, shipping included**. Order and developer page: https://aihwstack.com/en/products/recorder/developer/
@@ -31,6 +32,8 @@ Without a speech-to-text service set up, Transcribe shows the sample's transcrip
 
 The APK is signed with a key used only for this sample. Certificate SHA-256:
 `81:5B:11:12:3D:8E:92:64:53:17:3F:16:92:06:65:F5:10:93:57:A1:BD:EF:56:C9:44:A6:AD:49:0F:3A:0B:FE`
+
+Or open the [web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/) and tap **Try demo (no card needed)**: no install, any browser. Its source is one HTML file, [`web-demo/index.html`](web-demo/index.html).
 
 ## Quick start (Android)
 
