@@ -6,9 +6,9 @@ downloads recordings (with resume), plays them, transcribes them with any OpenAI
 shares them and deletes them from the card, so you can build your own AI note-taker app without our cloud.
 **No license fee, no royalties, no per-device fee.**
 
-<img src="docs/demo.gif" width="320" alt="Android sample in demo mode: download, play and transcribe a 42-second recording made on the card">
+<img src="docs/demo.gif" width="320" alt="Android sample with a real card: connect, device info, list, download and transcribe a recorded phone call">
 
-*The Android sample's demo mode on a Xiaomi Mi 6 (Android 9): download, play and transcribe a 42-second recording made on a real card. The transcript comes from OpenAI speech-to-text, entered in the app's settings.*
+*The Android sample with a real card on a Xiaomi Mi 6 (Android 9): connect, read device info, list, download and transcribe a 58-second phone call the card recorded in call mode. The transcript (in Chinese, a bank's automated phone menu) comes from OpenAI speech-to-text, entered in the app's settings.*
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
 - 🌐 [Web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/): connect a card from Chrome or Edge (Web Bluetooth), list, download with resume, play and save. Has a no-card demo too
