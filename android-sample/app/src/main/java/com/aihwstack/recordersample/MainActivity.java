@@ -27,6 +27,7 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -49,7 +50,7 @@ import java.util.UUID;
  *
  * Scan and connect, read battery / firmware / storage / device ID, list recordings, then per recording:
  * download (resumes from the last byte if the link dropped), play, transcribe through any
- * OpenAI-compatible speech-to-text API, delete from the card.
+ * OpenAI-compatible speech-to-text API, share (audio + transcript), delete from the card.
  *
  * One Activity, no third-party libraries. Protocol: docs/ble-protocol.md.
  */
@@ -264,10 +265,13 @@ public class MainActivity extends Activity {
         t.setPadding(0, 24, 0, 0);
         listView.addView(t);
         LinearLayout row = new LinearLayout(this);
-        listView.addView(row);
+        HorizontalScrollView hs = new HorizontalScrollView(this);   // five buttons do not fit on narrow phones
+        hs.addView(row);
+        listView.addView(hs);
         button(row, "Download", v -> download(f));
         button(row, "Play", v -> play(f));
         button(row, "Transcribe", v -> transcribe(f));
+        button(row, "Share", v -> share(f));
         button(row, "Delete", v -> confirmDelete(f));
     }
 
@@ -385,9 +389,36 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             try {
                 String text = asr.transcribe(raw, (done, total) -> { if (total > 1) log("  part " + done + " / " + total); });
+                try (FileOutputStream o = new FileOutputStream(transcriptFile(f))) { o.write(text.getBytes(StandardCharsets.UTF_8)); }
                 log("Transcript:\n" + text);
             } catch (IOException e) { log("Transcription failed: " + e.getMessage()); }
         }).start();
+    }
+
+    private File transcriptFile(Protocol.DeviceFile f) { return new File(getExternalFilesDir(null), f.base + ".txt"); }
+
+    // ------------------------------------------------------------------ share
+
+    /** Shares the recording as an .ogg file; if it has been transcribed, the transcript goes along as text. */
+    private void share(Protocol.DeviceFile f) {
+        byte[] raw = readDone(f);
+        if (raw == null) return;
+        try {
+            File ogg = new File(ShareProvider.dir(this), f.base + ".ogg");
+            try (FileOutputStream o = new FileOutputStream(ogg)) { o.write(OggOpus.wrap(raw, 0, raw.length - raw.length % OggOpus.FRAME_BYTES)); }
+            android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            i.setType("audio/ogg");
+            i.putExtra(android.content.Intent.EXTRA_STREAM, ShareProvider.uriFor(this, ogg));
+            i.putExtra(android.content.Intent.EXTRA_SUBJECT, "Recording " + f.dateText());
+            File txt = transcriptFile(f);
+            if (txt.exists()) {
+                byte[] b = new byte[(int) txt.length()];
+                try (FileInputStream in = new FileInputStream(txt)) { int n = 0, r; while (n < b.length && (r = in.read(b, n, b.length - n)) > 0) n += r; }
+                i.putExtra(android.content.Intent.EXTRA_TEXT, new String(b, StandardCharsets.UTF_8));
+            }
+            i.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(i, "Share recording"));
+        } catch (IOException e) { log("Share failed: " + e); }
     }
 
     // ------------------------------------------------------------------ import from USB (or any file)
