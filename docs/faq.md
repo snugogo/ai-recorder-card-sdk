@@ -25,7 +25,7 @@ No. The card talks to your app over Bluetooth. Where the audio goes next — you
 None is built in. Our reference app accepts any OpenAI-compatible endpoint; the user enters base URL, key and model, and the key stays on the phone.
 
 **Is there a per-device or per-minute fee?**
-No license fee, no royalties, no per-device fee. Our published app can also be offered under your brand (1,000+ units, 10 % revenue share); its source is not provided.
+No license fee, no royalties, no per-device fee.
 
 **Does it work on iPhone?**
 Yes, over Bluetooth. The protocol is the same, and our own iPhone app uses it (in final testing, App Store coming soon). The reference apps in this repository and with a sample order are Android only for now.
@@ -33,7 +33,7 @@ iOS hides the Bluetooth MAC, so use command 0-12 (device ID) to tell cards apart
 Over USB, the iPhone Files app shows the card but cannot read the recording files, so on iPhone use Bluetooth.
 
 **How fast is download?**
-About 31 KB/s, set by the card. A 1-hour Opus recording (7.2 MB) takes about 4 minutes.
+About 30 KB/s, set by the card. A 1-hour Opus recording (7.2 MB) takes about 4 minutes.
 
 **Is the audio encrypted on the card?**
 No. Recordings are stored as plain Opus packets and Bluetooth access is not authenticated. Delete recordings from the card after your app has stored them safely, and do not describe the device as hardware-encrypted.

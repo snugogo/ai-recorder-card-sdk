@@ -10,7 +10,7 @@ The recording is a 58-second phone call the card recorded in call mode (116,320 
 | Connect, device info | Battery, firmware, storage and device ID read | [android-1-connect](tested/android-1-connect.webp) |
 | List | 1 recording, marked `(call)` | [android-2-list](tested/android-2-list.webp) |
 | Resume after an interrupted download | The app was closed 0.3 s into the download, leaving a 4,640-byte `.part` file. After reconnecting, Download logged "Resuming … from byte 4640" and finished; the file has the same SHA-256 as a full download | [android-3-resume](tested/android-3-resume.webp) |
-| Play, transcribe | Plays; transcribed with OpenAI speech-to-text | [android-4-play-transcribe](tested/android-4-play-transcribe.webp) |
+| Play, transcribe | Plays; transcribed with a speech-to-text service set in the app | [android-4-play-transcribe](tested/android-4-play-transcribe.webp) |
 | Share | The share sheet offers the `.ogg` file; the transcript arrives as text in the receiving app (here a new SMS, which was then discarded; SMS itself does not accept `.ogg` attachments) | [android-5-share](tested/android-5-share.webp), [android-6-share-text](tested/android-6-share-text.webp) |
 | Delete from the card | Confirmation, "Deleted.", list shows 0 recordings | [android-7-delete-confirm](tested/android-7-delete-confirm.webp), [android-8-deleted](tested/android-8-deleted.webp) |
 
