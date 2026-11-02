@@ -1,6 +1,6 @@
-# WB-RC100 AI voice recorder card — open BLE protocol and Android sample
+# SNUGOGO CB08 AI voice recorder card — open BLE protocol and Android sample
 
-WB-RC100 is a card-sized AI voice recorder (86 × 54 × 3.2 mm) with a documented Bluetooth LE protocol.
+SNUGOGO CB08 (formerly WB-RC100) is a card-sized AI voice recorder (86 × 54 × 3.2 mm) with a documented Bluetooth LE protocol. In apps and Bluetooth lists it shows up as "CB08".
 This repository contains the free protocol document and a plain-Java Android sample app that connects to the card,
 downloads recordings (with resume), plays them, transcribes them with any OpenAI-compatible speech-to-text API,
 shares them and deletes them from the card, so you can build your own AI note-taker app without our cloud.
@@ -99,7 +99,7 @@ recordings never pass through our servers, and there is no per-device fee.
   The one condition: keep the copyright and license notice in your copy of the code.
 - **Documentation** (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it freely with attribution:
   "AI HW Stack (PINGOOD TECHNOLOGY CO. LIMITED), https://aihwstack.com".
-- **Names and logos**: "WB-RC100" and "AI HW Stack" are not licensed by this repository. Do not use them to name your product
+- **Names and logos**: "SNUGOGO" and "AI HW Stack" are not licensed by this repository. Do not use them to name your product
   or to suggest that we made or endorse it.
 - **Services are for cards bought from us**: engineering support and order-edition materials
   come only with recorder cards bought from us. The code and documentation licenses above are not limited this way.
