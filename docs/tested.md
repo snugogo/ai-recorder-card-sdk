@@ -40,9 +40,9 @@ Connected with a USB data cable, the card shows up as an ordinary USB drive.
 | Device | Result | Screenshot |
 |---|---|---|
 | Windows 11 PC | Shows up in File Explorer as a USB drive (here F:) | [usb-windows](tested/usb-windows.webp) |
-| iPhone (Files app) | Shows up as an external drive named NO NAME; files open | [usb-iphone](tested/usb-iphone.webp) |
+| iPhone (Files app) | Shows up as an external drive named NO NAME, but iOS cannot read the card's recording files. On iPhone, use Bluetooth | [usb-iphone](tested/usb-iphone.webp) |
 
 ## Not tested yet
 
 - Android sample: **Import audio file (USB) and transcribe**.
-- iOS: the protocol is the same, but there is no iOS sample in this repository and it has not been tested here.
+- iOS Bluetooth: our own iPhone app works with the card over Bluetooth (it is in final testing; App Store coming soon). There is no iOS sample in this repository, so this page has no iOS screenshots.

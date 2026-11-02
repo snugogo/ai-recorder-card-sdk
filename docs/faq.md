@@ -28,7 +28,9 @@ None is built in. Our reference app accepts any OpenAI-compatible endpoint; the 
 No license fee, no royalties, no per-device fee. Our published app can also be offered under your brand (1,000+ units, 10 % revenue share); its source is not provided.
 
 **Does it work on iPhone?**
-Yes, the protocol is the same. iOS hides the Bluetooth MAC, so use command 0-12 (device ID) to tell cards apart.
+Yes, over Bluetooth. The protocol is the same, and our own iPhone app uses it (in final testing, App Store coming soon). The reference apps in this repository and with a sample order are Android only for now.
+iOS hides the Bluetooth MAC, so use command 0-12 (device ID) to tell cards apart.
+Over USB, the iPhone Files app shows the card but cannot read the recording files, so on iPhone use Bluetooth.
 
 **How fast is download?**
 About 31 KB/s, set by the card. A 1-hour Opus recording (7.2 MB) takes about 4 minutes.
