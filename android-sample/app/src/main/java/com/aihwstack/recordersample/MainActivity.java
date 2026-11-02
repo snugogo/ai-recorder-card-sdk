@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Sample app for the WB-RC100 / CB08 recorder card.
+ * Sample app for the SNUGOGO CB08 recorder card.
  *
  * Scan and connect, read battery / firmware / storage / device ID, list recordings, then per recording:
  * download (resumes from the last byte if the link dropped), play, transcribe through any
@@ -501,7 +501,7 @@ public class MainActivity extends Activity {
     // ------------------------------------------------------------------ demo (no recorder needed)
 
     /*
-     * A virtual card with one real recording made on a WB-RC100 (assets/demo-sample.opus: 2,123 bare 40-byte Opus
+     * A virtual card with one real recording made on a SNUGOGO CB08 (assets/demo-sample.opus: 2,123 bare 40-byte Opus
      * packets, 42 s, exactly as the card stores them). Download copies it from the APK; Play, Transcribe, Share and
      * Delete then run the same code as with a real card.
      */
