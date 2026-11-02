@@ -1,6 +1,6 @@
 # Tested with a real card
 
-Card: WB-RC100 (CB08), firmware V1.0.0. Tests run on 1 November 2026.
+Card: SNUGOGO CB08, firmware V1.0.0. Tests run on 1 November 2026.
 The recording is a 58-second phone call the card recorded in call mode (116,320 bytes). Its transcript is in Chinese: a bank's automated phone menu.
 
 ## Android sample 1.1.0 (Xiaomi Mi 6, Android 9)

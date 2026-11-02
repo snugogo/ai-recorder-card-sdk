@@ -1,4 +1,4 @@
-# WB-RC100 (CB08) recorder card — BLE protocol, sample edition
+# SNUGOGO CB08 recorder card — BLE protocol, sample edition
 
 Version 1.2-S · 2026-11-01 · free edition for developers evaluating the recorder
 
@@ -11,7 +11,7 @@ delivered with the developer package (1,000+ cards). Section numbers are the sam
 
 | Item | Content |
 |---|---|
-| Device | WB-RC100 recorder card (module name CB08), firmware V1.0.0 |
+| Device | SNUGOGO CB08 recorder card (Bluetooth name CB08), firmware V1.0.0 |
 | Roles | Your app is the BLE Central; the recorder is the Peripheral |
 | Test environment | Xiaomi MI 6, Android 9; firmware V1.0.0. The same protocol is used by our own Android and iOS apps |
 
