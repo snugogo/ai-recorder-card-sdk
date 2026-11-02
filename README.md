@@ -25,7 +25,7 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 | Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
 | Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
 | Storage | Sample cards: 32 GB, about 255 hours with the current firmware (it stores Opus + WAV). Volume orders: up to 512 GB, and Opus-only firmware (about 4,300 hours per 32 GB) |
-| Platforms | Same protocol on Android and iOS |
+| Platforms | Same protocol on Android and iOS. On iPhone, recordings come off the card over Bluetooth only |
 | Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
 
 ## Try it without a card
@@ -66,7 +66,7 @@ Card firmware V1.0.0, November 2026:
 | Android sample 1.1.0 | Xiaomi Mi 6, Android 9 | Connect, device info, list, download, resume after an interrupted download (same bytes as a full download), play, transcribe (also a 30-minute recording sent in 10-minute pieces), share, delete from the card, demo mode |
 | Reference app 1.0.5 (comes with a sample order) | Xiaomi Mi 6, Android 9 | Download of a 1-hour recording (6.9 MB) at 30.4 KB/s in about 4 minutes, file complete; long recordings split into 1-hour files |
 | Web demo | Chrome on Windows 11 | Connect, device info, list, download, pause and resume, play, save `.ogg` |
-| Card as a USB drive | Windows 11 PC, iPhone (Files app) | The card shows up as a USB drive |
+| Card as a USB drive | Windows 11 PC, iPhone (Files app) | The card shows up as a USB drive. iOS cannot read the recording files, so on iPhone use Bluetooth |
 
 On a PC the web demo downloads more slowly than the phone app, because the browser cannot ask for a faster Bluetooth connection.
 Step-by-step results and screenshots: [docs/tested.md](docs/tested.md).
