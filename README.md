@@ -8,7 +8,7 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 
 <img src="docs/demo.gif" width="320" alt="Android sample with a real card: connect, device info, list, download and transcribe a recorded phone call">
 
-*The Android sample with a real card on a Xiaomi Mi 6 (Android 9): connect, read device info, list, download and transcribe a 58-second phone call the card recorded in call mode. The transcript (in Chinese, a bank's automated phone menu) comes from OpenAI speech-to-text, entered in the app's settings.*
+*The Android sample with a real card on a Xiaomi Mi 6 (Android 9): connect, read device info, list, download and transcribe a 58-second phone call the card recorded in call mode. The transcript (in Chinese, a bank's automated phone menu) comes from a speech-to-text service entered in the app's settings.*
 
 - 📄 [BLE protocol, sample edition](docs/ble-protocol.md): GATT, frame format, every command for list / download / delete, audio format, timeouts
 - 🌐 [Web demo](https://snugogo.github.io/ai-recorder-card-sdk/web-demo/): connect a card from Chrome or Edge (Web Bluetooth), list, download with pause and resume, play and save. Has a no-card demo too
@@ -22,8 +22,9 @@ shares them and deletes them from the card, so you can build your own AI note-ta
 |---|---|
 | Size | 86 × 54 × 3.2 mm (credit-card size) |
 | Bluetooth | BLE GATT, service `0xAE20`; write `0xAE21`; notify `0xAE22` / `0xAE23`; no pairing or authorization |
-| Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB |
-| Download | ≈ 31 KB/s; a 1-hour recording in about 4 minutes |
+| Audio | Opus 16 kbit/s mono (optional WAV); 1 hour ≈ 7.2 MB; long recordings are split into 1-hour files |
+| Download | ≈ 30 KB/s; a 1-hour recording in about 4 minutes |
+| Battery | 400 mAh; 15–20 hours of continuous recording. When idle the card switches itself off and then keeps its charge for about 200 days |
 | Storage | Sample cards: 32 GB, about 255 hours with the current firmware (it stores Opus + WAV). Volume orders: up to 512 GB, and Opus-only firmware (about 4,300 hours per 32 GB) |
 | Platforms | Same protocol on Android and iOS. On iPhone, recordings come off the card over Bluetooth only |
 | Transcription | Your choice: any OpenAI-compatible speech-to-text service; your key stays on your phone |
@@ -75,14 +76,15 @@ Step-by-step results and screenshots: [docs/tested.md](docs/tested.md).
 
 You can build a working app from this repository alone. The paid tiers save you time; they do not unlock the device.
 
-| | Free (this repo) | Sample order (from 1 card) | Hardware order (100–999 cards) | Developer package (1,000+ cards) | Your brand (1,000+ cards) |
-|---|---|---|---|---|---|
-| Protocol | Sample edition | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain | — |
-| Code | Android sample app: download with resume, play, transcribe, share, delete | Plus the complete reference app source (developer version, Android only) | Same as a sample order | Plus order-edition source and APK, and a Chrome Web Bluetooth demo | Our published app under your brand (its source is not provided) |
-| Help | GitHub Discussions and Issues | Self-service: full docs and source, plus GitHub Discussions | Self-service: full docs and source, plus GitHub Discussions | Dedicated engineering support from our team | — |
-| License fee / royalties | None | None | None | None | 10 % revenue share, no license fee |
+| | Free (this repo) | Sample order (from 1 card) | Hardware order (100–999 cards) | Developer package (1,000+ cards) |
+|---|---|---|---|---|
+| Protocol | Sample edition | Sample edition | Sample edition | Order edition: real-time audio, recording control, reconnect with recovery of missed audio, segment download, mic gain |
+| Code | Android sample app: download with resume, play, transcribe, share, delete | Plus the complete reference app source (developer version, Android only) | Same as a sample order | Plus order-edition source and APK, and a Chrome Web Bluetooth demo |
+| Help | GitHub Discussions and Issues | Self-service: full docs and source, plus GitHub Discussions | Self-service: full docs and source, plus GitHub Discussions | Dedicated engineering support from our team |
+| License fee / royalties | None | None | None | None |
 
 You can start with 100 cards; the full developer package and engineering support start at 1,000 units.
+Hardware customization: laser logo on the card, your own sleeve and manual from 1,000 cards (from 100 cards with a one-time fee); custom colours from 500 cards per colour.
 A sample card costs **USD 55, shipping included**. Prices and current terms: https://aihwstack.com/en/products/recorder/developer/
 
 ## How this compares with closed SDKs
@@ -96,10 +98,10 @@ recordings never pass through our servers, and there is no per-device fee.
 - **Code** (`android-sample/`): [MIT](LICENSE). You may use, change and sell it, also with hardware you did not buy from us.
   The one condition: keep the copyright and license notice in your copy of the code.
 - **Documentation** (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it freely with attribution:
-  "AI HW Stack, https://aihwstack.com".
+  "AI HW Stack (PINGOOD TECHNOLOGY CO. LIMITED), https://aihwstack.com".
 - **Names and logos**: "WB-RC100" and "AI HW Stack" are not licensed by this repository. Do not use them to name your product
   or to suggest that we made or endorse it.
-- **Services are for cards bought from us**: engineering support, order-edition materials and the brand option
+- **Services are for cards bought from us**: engineering support and order-edition materials
   come only with recorder cards bought from us. The code and documentation licenses above are not limited this way.
 - **No warranty, tested hardware only**: the protocol and sample are tested on cards we ship (firmware V1.0.0).
   Cards from other sources may run different firmware; we cannot support them.
